@@ -1,0 +1,130 @@
+.tiptap.ProseMirror {
+  --tt-checklist-bg-color: var(--muted);
+  --tt-checklist-bg-active-color: var(--foreground);
+  --tt-checklist-border-color: var(--border);
+  --tt-checklist-border-active-color: var(--foreground);
+  --tt-checklist-check-icon-color: var(--background);
+  --tt-checklist-text-active: var(--muted-foreground);
+
+  .dark & {
+    --tt-checklist-bg-color: var(--muted);
+    --tt-checklist-bg-active-color: var(--foreground);
+    --tt-checklist-border-color: var(--border);
+    --tt-checklist-border-active-color: var(--foreground);
+    --tt-checklist-check-icon-color: var(--background);
+    --tt-checklist-text-active: var(--muted-foreground);
+  }
+}
+
+/* =====================
+     LISTS
+     ===================== */
+.tiptap.ProseMirror {
+  // Common list styles
+  ol,
+  ul {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+    padding-left: 1.5em;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0.5rem;
+    }
+
+    ol,
+    ul {
+      margin-top: var(--tt-gap-tight);
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  li {
+    p {
+      margin-top: 0.3rem;
+      line-height: 1.6;
+    }
+  }
+
+  // Ordered lists
+  ol {
+    list-style: decimal;
+
+    ol {
+      list-style: lower-alpha;
+
+      ol {
+        list-style: lower-roman;
+      }
+    }
+  }
+
+  // Unordered lists
+  ul:not([data-type="taskList"]) {
+    list-style: disc;
+
+    ul {
+      list-style: circle;
+
+      ul {
+        list-style: square;
+      }
+    }
+  }
+
+  // Task lists
+  ul[data-type="taskList"] {
+    padding-left: 0.25em;
+
+    li {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+
+      &:not(:has(> p:first-child)) {
+        list-style-type: none;
+      }
+
+      &[data-checked="true"] {
+        > div > p {
+          opacity: 0.5;
+          text-decoration: line-through;
+        }
+
+        > div > p span {
+          text-decoration: line-through;
+        }
+      }
+
+      label {
+        position: relative;
+        padding-top: 0.375rem;
+        padding-right: 0.5rem;
+
+        input[type="checkbox"] {
+          position: static;
+          opacity: 1;
+          width: 1.1em;
+          height: 1.1em;
+          margin: 0 0.5rem 0 0.1rem;
+          appearance: auto;
+          accent-color: var(--tt-checklist-bg-active-color);
+          border: 1px solid var(--tt-checklist-border-color);
+          background-color: var(--tt-checklist-bg-color);
+        }
+        input[type="checkbox"]:checked {
+          background: var(--tt-checklist-bg-active-color);
+          border-color: var(--tt-checklist-border-active-color);
+        }
+      }
+
+      div {
+        flex: 1 1 0%;
+        min-width: 0;
+      }
+    }
+  }
+}

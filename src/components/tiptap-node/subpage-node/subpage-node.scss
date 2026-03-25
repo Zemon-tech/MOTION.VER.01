@@ -1,0 +1,43 @@
+.subpage-block {
+  margin: 4px 0; /* tighter vertical spacing between blocks */
+}
+
+.subpage-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.subpage-inner:hover {
+  background: color-mix(in oklab, currentColor 6%, transparent);
+  border-color: rgba(127, 127, 127, 0.25);
+  cursor: pointer;
+}
+
+.subpage-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Override global top-level block spacing for subpage blocks */
+.tiptap.ProseMirror > .subpage-block {
+  /* cancel the generic padding-bottom applied to all blocks */
+  padding-bottom: 0 !important;
+  /* keep very small vertical margins for this block itself */
+  margin-top: 2px !important;
+  margin-bottom: 0 !important;
+}
+
+/* When a subpage follows any block, reduce the generic sibling margin */
+.tiptap.ProseMirror > * + .subpage-block {
+  margin-top: 4px !important;
+}
+
+/* When any block follows a subpage, reduce the next block's top margin */
+.tiptap.ProseMirror > .subpage-block + * {
+  margin-top: 4px !important;
+}

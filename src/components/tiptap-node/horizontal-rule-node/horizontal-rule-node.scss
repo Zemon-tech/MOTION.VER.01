@@ -1,0 +1,22 @@
+.tiptap.ProseMirror {
+  /* Use app theme border color for consistent contrast */
+  --horizontal-rule-color: var(--border);
+}
+
+/* =====================
+     HORIZONTAL RULE
+     ===================== */
+.tiptap.ProseMirror {
+  hr {
+    border: none;
+    height: 1px;
+    background-color: var(--horizontal-rule-color);
+  }
+
+  [data-type="horizontalRule"] {
+    margin-top: var(--tt-gap);
+    margin-bottom: var(--tt-gap);
+    padding-top: 0.025rem;
+    padding-bottom: 0.025rem;
+  }
+}

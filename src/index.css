@@ -1,0 +1,335 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.21 0.006 285.885);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --ring: oklch(0.705 0.015 286.067);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-primary: oklch(0.21 0.006 285.885);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-ring: oklch(0.705 0.015 286.067);
+}
+
+/* Notion-inspired themes using data-theme attribute */
+[data-theme="notion-light"] {
+  --background: #FFFFFF; /* page background */
+  --foreground: #37352F; /* default text */
+  --card: #FFFFFF;
+  --card-foreground: #37352F;
+  --popover: #FFFFFF;
+  --popover-foreground: #37352F;
+  --primary: #D9730D; /* accent */
+  --primary-foreground: #FFFFFF;
+  --secondary: #F6F5F4;
+  --secondary-foreground: #37352F;
+  --muted: #F6F5F4;
+  --muted-foreground: #6B6E69;
+  --accent: #F6F5F4;
+  --accent-foreground: #37352F;
+  --destructive: #E03E3E;
+  --border: #E6E6E4;
+  --input: #E6E6E4;
+  --ring: #D9730D;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #37352F;
+  --sidebar-primary: #D9730D;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F6F5F4;
+  --sidebar-accent-foreground: #37352F;
+  --sidebar-border: #E6E6E4;
+  --sidebar-ring: #D9730D;
+}
+
+[data-theme="notion-dark"] {
+  /* MAIN CONTENT AREA: Very Dark/Near Black */
+  --background: #191919; /* page background (Very Dark/Near Black, similar to the main Notion canvas) */
+  --card: #191919;
+  --popover: #191919;
+  
+  /* SIDEBAR/NAV: Dark Charcoal Gray */
+  --sidebar: #222222; /* sidebar background (Dark Charcoal Gray, slightly lighter than the main canvas) */
+  
+  /* DEFAULT TEXT & FOREGROUNDS: White/Near White */
+  --foreground: rgba(255,255,255,0.9); /* default text */
+  --card-foreground: rgba(255,255,255,0.9);
+  --popover-foreground: rgba(255,255,255,0.9);
+  --sidebar-foreground: rgba(255,255,255,0.9);
+  
+  /* MUTED/SECONDARY ELEMENTS: Lighter Gray for subtle contrast */
+  --secondary: #333333; /* For backgrounds of subtle elements */
+  --muted: #333333;
+  --accent: #333333; /* For hover states and subtle element backgrounds */
+  
+  /* Muted Foreground (Less prominent text/icons) */
+  --secondary-foreground: rgba(255,255,255,0.7);
+  --muted-foreground: rgba(255,255,255,0.7);
+  --accent-foreground: rgba(255,255,255,0.9);
+  
+  /* ACCENT/PRIMARY COLOR: Notion's default blue/purple is hard to pinpoint, using a neutral blue for general accent */
+  --primary: #3399CC; /* accent color (A neutral blue for primary interactive elements) */
+  --primary-foreground: #FFFFFF; /* White text on the primary accent color */
+  
+  /* SIDEBAR ACCENT/PRIMARY */
+  --sidebar-primary: #3399CC;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #333333; /* Sidebar hover/active states */
+  --sidebar-accent-foreground: rgba(255,255,255,0.9);
+  
+  /* BORDERS, INPUTS, RINGS: Subtle, darker gray borders */
+  --border: #333333;
+  --input: #333333;
+  --ring: #3399CC; /* Focus ring color */
+  
+  /* DESTRUCTIVE: Red for danger/delete actions */
+  --destructive: #E03E3E;
+  --destructive-foreground: #FFFFFF;
+}
+
+/* reset Vite template anchor colors to allow design system to control */
+a { text-decoration: inherit; }
+a:hover { text-decoration: inherit; }
+
+html, body, #root {
+  height: 100svh;
+  overflow: hidden;
+}
+body {
+  margin: 0;
+}
+
+/* remove Vite template typography/button overrides */
+
+
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+.dark {
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.21 0.006 285.885);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.92 0.004 286.32);
+  --primary-foreground: oklch(0.21 0.006 285.885);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.552 0.016 285.938);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.21 0.006 285.885);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.274 0.006 286.033);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.552 0.016 285.938);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Ensure horizontal rule/separator inside the editor is visible in both themes */
+.simple-editor-content hr, .prose hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 0.5rem 0; /* tighter */
+}
+
+/* FORCE text selection visibility inside editor - override all other styles */
+.tiptap.ProseMirror ::selection,
+.tiptap.ProseMirror *::selection,
+.tiptap.ProseMirror p::selection,
+.tiptap.ProseMirror h1::selection,
+.tiptap.ProseMirror h2::selection,
+.tiptap.ProseMirror h3::selection,
+.tiptap.ProseMirror h4::selection,
+.tiptap.ProseMirror h5::selection,
+.tiptap.ProseMirror h6::selection,
+.tiptap.ProseMirror blockquote::selection,
+.tiptap.ProseMirror li::selection,
+.tiptap.ProseMirror code::selection,
+.tiptap.ProseMirror pre::selection,
+.tiptap.ProseMirror span::selection,
+.tiptap.ProseMirror div::selection,
+.tiptap.ProseMirror strong::selection,
+.tiptap.ProseMirror em::selection,
+.tiptap.ProseMirror u::selection,
+.tiptap.ProseMirror s::selection,
+/* Also target the prose class */
+.prose ::selection,
+.prose *::selection,
+.prose p::selection,
+.prose h1::selection,
+.prose h2::selection,
+.prose h3::selection,
+.prose h4::selection,
+.prose h5::selection,
+.prose h6::selection,
+.prose blockquote::selection,
+.prose li::selection,
+.prose code::selection,
+.prose pre::selection,
+.prose span::selection,
+.prose div::selection,
+.prose strong::selection,
+.prose em::selection,
+.prose u::selection,
+.prose s::selection {
+  background: var(--tt-selection-color, rgba(157, 138, 255, 0.2)) !important;
+  background-color: rgba(157, 138, 255, 0.2) !important;
+  color: inherit !important;
+}
+
+/* Override any Tailwind or global selection styles */
+.tiptap.ProseMirror *,
+.prose * {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
+
+/* Additional aggressive targeting for editor content */
+#tiptap-editor-wrapper ::selection,
+#tiptap-editor-wrapper *::selection {
+  background: rgba(157, 138, 255, 0.2) !important;
+  background-color: rgba(157, 138, 255, 0.2) !important;
+  color: inherit !important;
+}
+
+/* Force selection on all elements inside the editor wrapper */
+#tiptap-editor-wrapper * {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
+
+/* Ensure blockquote contrast and spacing globally if node styles fail to load */
+.prose blockquote { position: relative; padding-left: 1em; margin: 0.75rem 0; }
+.prose blockquote::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 0.25em; background: var(--border); }
+
+/* Provide global fallbacks for code blocks if node css hasn't loaded yet */
+.prose pre { background: color-mix(in oklab, var(--border) 20%, transparent); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin: 0.75rem 0; }
+.prose code { background: color-mix(in oklab, var(--border) 30%, transparent); border: 1px solid var(--border); border-radius: 6px; padding: 0.1em 0.2em; }
+
+/* Drag and Drop Visual Feedback */
+.drag-overlay {
+  background: rgba(59, 130, 246, 0.1);
+  border-left: 2px solid #3b82f6;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.drag-handle {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.drag-handle:hover,
+.drag-handle.dragging {
+  opacity: 1;
+}
+
+.drag-handle button {
+  transition: all 0.15s ease;
+}
+
+.drag-handle button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: scale(1.05);
+}
+

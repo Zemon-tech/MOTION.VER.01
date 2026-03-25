@@ -1,0 +1,17 @@
+.tiptap-separator {
+  flex-shrink: 0;
+  /* Use app theme border color for reliable contrast */
+  background-color: var(--border);
+
+  &[data-orientation="horizontal"] {
+    height: 1px;
+    width: 100%;
+    /* Reduce default vertical spacing */
+    margin: 0.25rem 0; /* 4px */
+  }
+
+  &[data-orientation="vertical"] {
+    height: 1.5rem;
+    width: 1px;
+  }
+}

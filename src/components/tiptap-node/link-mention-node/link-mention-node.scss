@@ -1,0 +1,4 @@
+.link-mention { display: inline; margin: 0; }
+.link-mention-inner { display: inline-flex; align-items: center; gap: 6px; padding: 1px 6px; border-radius: 8px; text-decoration: none !important; font-size: 0.975rem; line-height: 1; vertical-align: baseline; margin: 0; }
+.link-mention-favicon { width: 25px; height: 25px; border-radius: 4px; object-fit: cover; display: inline-block; vertical-align: middle; }
+.link-mention-text { line-height: 1; font-weight: 800; vertical-align: baseline; }
