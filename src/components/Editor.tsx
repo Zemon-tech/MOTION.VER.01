@@ -16,6 +16,9 @@ import Superscript from '@tiptap/extension-superscript'
 // removed invalid Selection extension import
 import { DndContext, closestCenter, useDraggable, useDroppable, MouseSensor, useSensor, useSensors } from '@dnd-kit/core'
 import * as React from 'react'
+import { FixedSizeGrid as Grid } from 'react-window'
+import emojis from '@/assets/emojis.json'
+console.log('Imported emojis:', emojis ? (Array.isArray(emojis) ? emojis.length : typeof emojis) : 'null')
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { ToggleList, ToggleSummary, ToggleContent } from '@/extensions/toggle-list'
 
@@ -63,24 +66,23 @@ type EditorProps = {
   onCreateSubpage?: (title: string) => Promise<{ id: string; slug: string; title: string; icon: string | null }>
 }
 
-function IconDisplay({ icon, hasCover }: { icon: string; hasCover: boolean }) {
+const IconDisplay = React.memo(({ icon, hasCover }: { icon: string; hasCover: boolean }) => {
   return (
     <div className="w-full px-4">
       <div className="mx-auto w-full max-w-3xl">
         <div className="flex justify-start" style={{ marginTop: hasCover ? -28 : 72 }}>
           <div className="relative group/icon">
             {/^https?:\/\//i.test(icon) ? (
-              <img src={icon} alt="icon" className="w-20 h-20 rounded opacity-100" />
+              <img src={icon} alt="icon" className="w-20 h-20 rounded opacity-100 object-cover" />
             ) : (
-              <span className="text-8xl leading-none opacity-100">{icon}</span>
+              <span className="text-8xl leading-none opacity-100 select-none cursor-default">{icon}</span>
             )}
-            {/* Inline change icon control under the icon is removed to avoid overlap with title */}
           </div>
         </div>
       </div>
     </div>
   )
-}
+})
 
 function IconTrigger({ onSave, onRemove, current, className }: { onSave: (icon: string | null) => void; onRemove?: () => void; current?: string | null; className?: string }) {
   const [open, setOpen] = React.useState(false)
@@ -90,13 +92,61 @@ function IconTrigger({ onSave, onRemove, current, className }: { onSave: (icon: 
   const openDialog = () => { setVal(current || ''); setOpen(true) }
   const save = () => { onSave(val.trim() || null); setOpen(false) }
 
-  const emojiList = React.useMemo(
-    () => [
-      '😀','😁','😂','🤣','😃','😄','😅','😉','😊','🙂','🙃','😋','😎','😍','😘','😇','🥳','🤩','🤔','🤖','🧠','📚','💡','✅','⭐️','🔥','⚙️','📄','🧱','📝','📌','📎','📦','🧭','🧩','🛠️'
-    ],
-    []
-  )
-  const filteredEmoji = emojiList.filter(e => e.includes(query))
+  const emojiKeywords: Record<string, string[]> = {
+    '😀': ['smile', 'happy', 'grin'],
+    '😃': ['smile', 'happy', 'big'],
+    '😄': ['smile', 'happy', 'eyes'],
+    '😊': ['smile', 'happy', 'blush'],
+    '😂': ['laugh', 'cry', 'joy'],
+    '🤣': ['laugh', 'rolling', 'funny'],
+    '😍': ['heart', 'love', 'eyes'],
+    '🥰': ['heart', 'love', 'smile'],
+    '😘': ['heart', 'love', 'kiss'],
+    '❤️': ['heart', 'love', 'red'],
+    '🔥': ['fire', 'hot', 'lit'],
+    '✨': ['sparkle', 'shimmer', 'magic'],
+    '🚀': ['rocket', 'launch', 'fast'],
+    '👍': ['thumb', 'up', 'ok', 'yes'],
+    '👎': ['thumb', 'down', 'no'],
+    '🙏': ['pray', 'please', 'thanks'],
+    '✅': ['check', 'done', 'yes'],
+    '❌': ['cross', 'no', 'wrong'],
+  }
+
+  const filteredEmoji = React.useMemo(() => {
+    const list = Array.isArray(emojis) ? emojis : (emojis as any)?.default || []
+    if (!query) return list
+    const q = query.toLowerCase()
+    return list.filter((e: string) => {
+      if (e.includes(q)) return true
+      const keywords = emojiKeywords[e] || []
+      return keywords.some(k => k.includes(q))
+    })
+  }, [query])
+
+  const COLUMN_COUNT = 8
+  const rowCount = Math.ceil(filteredEmoji.length / COLUMN_COUNT)
+
+  console.log('Emojis:', filteredEmoji.length, 'RowCount:', rowCount)
+  const EmojiCell = React.useMemo(() => {
+    return ({ columnIndex, rowIndex, style, data }: any) => {
+      const index = rowIndex * COLUMN_COUNT + columnIndex
+      const emoji = data[index]
+      if (!emoji) return null
+      return (
+        <div style={style} className="p-1">
+          <button 
+            className="w-full h-full border border-border/40 rounded-lg hover:bg-accent text-2xl flex items-center justify-center p-0 shadow-sm transition-all active:scale-90" 
+            onClick={() => { onSave(emoji); setOpen(false) }}
+            type="button"
+          >
+            {emoji}
+          </button>
+        </div>
+      )
+    }
+  }, [onSave])
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -114,7 +164,7 @@ function IconTrigger({ onSave, onRemove, current, className }: { onSave: (icon: 
               ) : null}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 max-h-[70vh] overflow-auto pr-1">
+          <div className="space-y-3 pr-1">
             <div className="flex border-b">
               <button className={`px-3 py-2 text-sm ${tab==='emoji' ? 'border-b-2 border-foreground' : 'text-muted-foreground'}`} onClick={() => setTab('emoji')}>Emoji</button>
               <button className={`px-3 py-2 text-sm ${tab==='link' ? 'border-b-2 border-foreground' : 'text-muted-foreground'}`} onClick={() => setTab('link')}>Link</button>
@@ -122,15 +172,23 @@ function IconTrigger({ onSave, onRemove, current, className }: { onSave: (icon: 
             {tab === 'emoji' ? (
               <div className="space-y-2">
                 <input
-                  className="w-full border rounded px-2 py-1 text-sm bg-background"
+                  className="w-full border rounded px-2 py-1 text-sm bg-background mb-2"
                   placeholder="Filter…"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
-                <div className="grid grid-cols-8 gap-2 max-h-[50vh] overflow-auto">
-                  {filteredEmoji.map((e, i) => (
-                    <button key={i} className="h-9 border rounded hover:bg-muted text-xl" onClick={() => { onSave(e); setOpen(false) }}>{e}</button>
-                  ))}
+                <div className="border rounded overflow-hidden">
+                  <Grid
+                    columnCount={COLUMN_COUNT}
+                    columnWidth={56}
+                    height={300}
+                    rowCount={rowCount}
+                    rowHeight={56}
+                    width={448}
+                    itemData={filteredEmoji}
+                  >
+                    {EmojiCell}
+                  </Grid>
                 </div>
               </div>
             ) : (
@@ -161,7 +219,7 @@ function IconTrigger({ onSave, onRemove, current, className }: { onSave: (icon: 
     </>
   )
 }
-function AddCoverTrigger({ onSave, className, buttonLabel = 'Add cover', predefinedUrls, currentUrl }: { onSave: (url: string | null) => void; className?: string; buttonLabel?: string; predefinedUrls?: string[]; currentUrl?: string | null }) {
+const AddCoverTrigger = React.memo(({ onSave, className, buttonLabel = 'Add cover', predefinedUrls, currentUrl }: { onSave: (url: string | null) => void; className?: string; buttonLabel?: string; predefinedUrls?: string[]; currentUrl?: string | null }) => {
   const [open, setOpen] = React.useState(false)
   const openDialog = () => { setOpen(true) }
   return (
@@ -183,7 +241,7 @@ function AddCoverTrigger({ onSave, className, buttonLabel = 'Add cover', predefi
       </button>
     </>
   )
-}
+})
 
 export function Editor({ title, onTitleChange, initialContentJSON, onContentChange, readOnly = false, coverImageUrl, coverPosition = 50, onCoverImageUrlChange, onCoverPositionChange, icon, onIconChange, persistKey, onCreateSubpage }: EditorProps) {
   const titleInputRef = useRef<HTMLInputElement>(null)

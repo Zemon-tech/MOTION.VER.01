@@ -9,6 +9,40 @@ import { emitSubpageMetaToAncestors, emitSubpageDeletedToAncestors } from '../se
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
+export async function searchPages(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userId = (req as any).user?.userId
+    const query = (req.query.q as string) || ''
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' })
+    
+    // Search pages owner by user or shared with user
+    const pages = await Page.find({
+      $and: [
+        {
+          $or: [
+            { ownerId: userId },
+            { 'collaborators.userId': userId },
+            { sharedWith: userId },
+          ]
+        },
+        {
+          $or: [
+            { title: { $regex: query, $options: 'i' } },
+            { 'content.content.text': { $regex: query, $options: 'i' } } // Very basic Tiptap content search
+          ]
+        }
+      ]
+    })
+    .select('_id title slug icon updatedAt')
+    .limit(10)
+    .lean()
+
+    res.json({ pages })
+  } catch (err) {
+    next(err)
+  }
+}
+
 const EMPTY_DOC = { type: 'doc', content: [{ type: 'paragraph' }] }
 
 export async function updateLock(req: Request, res: Response, next: NextFunction) {

@@ -6,7 +6,11 @@ import App from './App'
 import { HomeRoute } from './routes/HomeRoute'
 import { PageRoute } from './routes/PageRoute'
 import { ShareRoute } from './routes/ShareRoute'
+import { InboxRoute } from './routes/InboxRoute'
+import { CalendarRoute } from './routes/CalendarRoute'
+import { GoogleAuthCallback } from './routes/GoogleAuthCallback'
 import { setFavicon } from '@/lib/meta'
+
 // Apply saved theme on app start
 try {
   const theme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | 'notion-light' | 'notion-dark' | null
@@ -29,6 +33,9 @@ try { setFavicon() } catch {}
 const router = createBrowserRouter([
   { path: '/', element: <App /> },
   { path: '/home', element: <HomeRoute /> },
+  { path: '/inbox', element: <InboxRoute /> },
+  { path: '/calendar', element: <CalendarRoute /> },
+  { path: '/google-auth-success', element: <GoogleAuthCallback /> },
   { path: '/s/:slug', element: <ShareRoute /> },
   { path: '/:slug', element: <PageRoute /> },
 ])

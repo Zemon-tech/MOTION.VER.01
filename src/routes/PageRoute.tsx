@@ -159,7 +159,7 @@ export function PageRoute() {
             const arr: Array<{ slug: string; ts: number }> = raw ? JSON.parse(raw) : []
             const now = Date.now()
             const filtered = arr.filter((e) => e && e.slug !== slug)
-            const next = [{ slug, ts: now }, ...filtered].slice(0, 30)
+            const next = [{ slug, ts: now, title: newTitle, icon: res.page?.icon || null }, ...filtered].slice(0, 30)
             localStorage.setItem('recentVisited', JSON.stringify(next))
           } catch {}
           // Persist to server

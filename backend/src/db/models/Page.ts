@@ -34,6 +34,8 @@ const pageSchema = new Schema(
   { timestamps: true }
 )
 
+pageSchema.index({ title: 'text' })
+
 export type PageDocument = InferSchemaType<typeof pageSchema> & { _id: Schema.Types.ObjectId }
 
 export const Page = model('Page', pageSchema)

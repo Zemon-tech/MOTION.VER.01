@@ -10,7 +10,9 @@ export function cn(...inputs: ClassValue[]) {
 export const apiBase =
   (import.meta as any).env?.VITE_API_BASE_URL ||
   (import.meta as any).env?.VITE_API_BASE ||
-  'http://localhost:4000/api'
+  (typeof window !== 'undefined' 
+    ? `${window.location.protocol}//${window.location.hostname}:4000/api` 
+    : 'http://localhost:4000/api')
 
 export async function api<T = any>(path: string, options: RequestInit = {}): Promise<T> {
   const token = typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null

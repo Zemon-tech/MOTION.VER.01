@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { SidebarProvider, Sidebar as ShadSidebar, SidebarInset } from '@/components/ui/sidebar'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { CommandPalette } from '@/components/CommandPalette'
 
 type LayoutProps = {
   header: ReactNode
@@ -14,6 +15,7 @@ export function Layout({ header, sidebar, children, hideSidebar = false, hideHea
   if (hideSidebar) {
     return (
       <div className="flex h-svh w-svw bg-background text-foreground">
+        <CommandPalette />
         <div className="flex min-h-svh flex-col w-full">
           {hideHeader ? null : (
             <header className="border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -35,6 +37,7 @@ export function Layout({ header, sidebar, children, hideSidebar = false, hideHea
   return (
     <SidebarProvider>
       <div className="flex h-svh w-svw bg-background text-foreground">
+        <CommandPalette />
         <ShadSidebar>
           <ScrollArea className="h-full w-full">
             {sidebar}

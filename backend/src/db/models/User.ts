@@ -42,6 +42,11 @@ const userSchema = new Schema(
         { _id: false }
       ),
     ],
+    googleTokens: {
+      accessToken: { type: String },
+      refreshToken: { type: String },
+      expiryDate: { type: Number },
+    },
   },
   { timestamps: true }
 )
@@ -49,5 +54,3 @@ const userSchema = new Schema(
 export type UserDocument = InferSchemaType<typeof userSchema> & { _id: Schema.Types.ObjectId }
 
 export const User = model('User', userSchema)
-
-

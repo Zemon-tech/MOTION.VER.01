@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { auth, optionalAuth } from '../middleware/auth'
 import { validateBody } from '../middleware/validate'
 import { createPageSchema, createSubpageSchema, updatePageSchema, updatePrivacySchema, shareSchema, updateLockSchema, verifyLockSchema } from '../schemas/page.schema'
-import { createPage, listMyPages, listPublicPages, getPage, getPageBySlug, updatePage, updatePrivacy, sharePage, deletePage, starPage, unstarPage, listSharedPages, claimLink, listSharedByMe, listCollaborators, inviteCollaborator, removeCollaborator, updateCollaboratorRole, createSubpage, getAncestors, getPagesMeta, updateLock, verifyLock } from '../controllers/page.controller'
+import { createPage, listMyPages, listPublicPages, getPage, getPageBySlug, updatePage, updatePrivacy, sharePage, deletePage, starPage, unstarPage, listSharedPages, claimLink, listSharedByMe, listCollaborators, inviteCollaborator, removeCollaborator, updateCollaboratorRole, createSubpage, getAncestors, getPagesMeta, updateLock, verifyLock, searchPages } from '../controllers/page.controller'
 
 const router = Router()
 
@@ -11,6 +11,7 @@ router.post('/:id/subpages', auth, validateBody(createSubpageSchema), createSubp
 router.get('/', auth, listMyPages)
 router.get('/public', optionalAuth, listPublicPages)
 router.get('/meta', optionalAuth, getPagesMeta)
+router.get('/search', auth, searchPages)
 router.get('/shared', auth, listSharedPages)
 router.get('/shared-by-me', auth, listSharedByMe)
 router.get('/slug/:slug', optionalAuth, getPageBySlug)

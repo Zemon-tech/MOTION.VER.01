@@ -317,6 +317,27 @@ export function AppSidebar() {
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
+                  ) : item.title === 'Inbox' ? (
+                    <SidebarMenuButton asChild>
+                      <Link to="/inbox">
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  ) : item.title === 'Calendar' ? (
+                    <SidebarMenuButton asChild>
+                      <Link to="/calendar">
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  ) : item.title === 'Search' ? (
+                    <SidebarMenuButton asChild>
+                      <button type="button" onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </button>
+                    </SidebarMenuButton>
                   ) : (
                     <SidebarMenuButton asChild>
                       <button type="button">

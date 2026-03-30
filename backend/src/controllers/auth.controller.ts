@@ -6,7 +6,7 @@ import RedisService from '../services/redis.service'
 
 const REFRESH_COOKIE = 'refreshToken'
 const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
-const isLocal = /^(http:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?$/i.test(corsOrigin)
+const isLocal = process.env.NODE_ENV === 'development'
 
 const cookieOptions = isLocal
   ? ({
