@@ -1,102 +1,83 @@
 /* Notion-like Table Styles */
 .tiptap.ProseMirror {
+  .tableWrapper {
+    margin: var(--tt-gap) 0;
+    display: inline-block;
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border, rgba(120, 120, 120, 0.25));
+    border-radius: 10px;
+    background: var(--card);
+    vertical-align: top;
+  }
+
   table,
   table.notion-table {
-    width: 100%;
-    border-collapse: collapse;
+    width: max-content;
+    min-width: 0;
+    border-collapse: separate;
     border-spacing: 0;
     font-size: 14px;
     line-height: 1.5;
-    background: var(--card);
-    border-radius: 8px;
-    /* Allow resize handles to be visible */
-    overflow: visible;
-    margin: var(--tt-gap) 0;
-    border: 1px solid var(--border, rgba(120, 120, 120, 0.25));
+    background: transparent;
     color: var(--foreground, inherit);
-    /* Allow horizontal scrolling when content is wider than container */
-    display: block;
-    overflow-x: auto;
-    max-width: 100%;
-    
+    margin: 0;
+    display: table;
+
     tr {
-      border-bottom: 1px solid var(--border);
-      transition: background-color 0.2s ease;
-      
-      &:hover {
-        background-color: inherit;
-      }
-      
-      &:last-child {
-        border-bottom: none;
-      }
+      transition: background-color 0.12s ease;
     }
-    
-    th {
-      background-color: var(--muted);
-      font-weight: 600;
-      color: var(--foreground, inherit);
-      padding: 12px 16px;
-      text-align: left;
-      border-right: 1px solid var(--border, rgba(120,120,120,0.25));
-      position: relative;
-      user-select: none;
-      
-      &:last-child {
-        border-right: none;
-      }
-      
-      /* Header cell controls */
-      &::after {
-        content: '';
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        width: 1px;
-        background: var(--border);
-        opacity: 0;
-        transition: opacity 0.2s ease;
-      }
-      
-      &:hover::after {
-        opacity: 0;
-      }
-    }
-    
+
+    th,
     td {
-      padding: 12px 16px;
-      border-right: 1px solid var(--border, rgba(120,120,120,0.25));
+      border-right: 1px solid var(--border, rgba(120, 120, 120, 0.25));
+      border-bottom: 1px solid var(--border, rgba(120, 120, 120, 0.25));
+      min-width: 140px;
+      padding: 10px 12px;
+      text-align: left;
       vertical-align: top;
       position: relative;
-      min-width: 120px;
-      
-      &:last-child {
-        border-right: none;
-      }
-      
-      /* Cell selection styling */
-      &.ProseMirror-selectednode {
-        background-color: var(--tt-selection-color);
-        border-radius: 4px;
-      }
-      
-      /* Cell content styling */
+      background: transparent;
+    }
+
+    th {
+      background: color-mix(in srgb, var(--muted) 62%, transparent);
+      font-weight: 600;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    tr:last-child td,
+    tr:last-child th {
+      border-bottom: none;
+    }
+
+    tr td:last-child,
+    tr th:last-child {
+      border-right: none;
+    }
+
+    td {
       p {
         margin: 0;
-        padding: 0;
         min-height: 1.5em;
       }
-      
-      /* Empty cell styling */
+
       &:empty {
         min-height: 2em;
       }
-      
-      /* Focus styling */
-      &:focus-within {
-        outline: 2px solid var(--primary);
-        outline-offset: -2px;
+
+      &.ProseMirror-selectednode {
+        background: color-mix(in srgb, var(--primary) 16%, transparent);
+      }
+
+      &.selectedCell::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: color-mix(in srgb, var(--primary) 14%, transparent);
+        pointer-events: none;
       }
     }
   }
@@ -120,19 +101,19 @@
   transform: translateY(-10px);
   transition: all 0.2s ease;
   pointer-events: none;
-  
+
   &.visible {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
   }
-  
+
   .table-control-group {
     display: flex;
     gap: 4px;
     align-items: center;
   }
-  
+
   .table-control-button {
     display: flex;
     align-items: center;
@@ -145,12 +126,12 @@
     font-size: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
-    
+
     &:hover {
       background: var(--muted);
       color: var(--foreground);
     }
-    
+
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -159,20 +140,21 @@
 }
 
 /* Table resize handles */
-.table-resize-handle {
+.table-resize-handle,
+.column-resize-handle {
   position: absolute;
   top: 0;
-  right: -2px;
-  width: 4px;
+  right: -1px;
+  width: 3px;
   height: 100%;
   background: var(--primary);
   cursor: col-resize;
   opacity: 0;
-  transition: opacity 0.2s ease;
-  
-  &:hover {
-    opacity: 1;
-  }
+  transition: opacity 0.12s ease;
+}
+
+.tiptap.ProseMirror table:hover .column-resize-handle {
+  opacity: 0.42;
 }
 
 /* Dark mode adjustments */
@@ -181,7 +163,7 @@
     th {
       background-color: var(--muted);
     }
-    
+
     tr:hover {
       background-color: inherit;
     }
@@ -191,17 +173,15 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .tiptap.ProseMirror table {
-    margin: 0.5rem 0;
-    border-radius: 6px;
     font-size: 13px;
-    
+
     th,
     td {
-      padding: 8px 12px;
+      padding: 8px 10px;
       min-width: 100px;
     }
   }
-  
+
   .table-controls {
     position: fixed;
     top: auto;
@@ -209,7 +189,7 @@
     left: 20px;
     right: 20px;
     transform: translateY(20px);
-    
+
     &.visible {
       transform: translateY(0);
     }
@@ -221,12 +201,12 @@
   .tiptap.ProseMirror table {
     border: 1px solid #000;
     break-inside: avoid;
-    
+
     th {
       background-color: #f5f5f5 !important;
     }
   }
-  
+
   .table-controls {
     display: none;
   }

@@ -29,7 +29,7 @@ npm run dev
 API runs on http://localhost:4000
 
 ## Notes
+
 - JWT access (Authorization: Bearer) + refresh (httpOnly cookie)
 - Upload image: POST /api/uploads/images (multipart field name: file)
 - Static uploads served at /uploads
-

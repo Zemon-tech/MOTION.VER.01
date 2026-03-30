@@ -12,6 +12,28 @@ export const apiBase =
   (import.meta as any).env?.VITE_API_BASE ||
   'http://localhost:4000/api'
 
+export type ApiErrorResponse = {
+  error?: {
+    code?: string
+    message?: string
+    details?: unknown
+  }
+}
+
+export class ApiError extends Error {
+  status: number
+  code?: string
+  details?: unknown
+
+  constructor(message: string, status: number, code?: string, details?: unknown) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+    this.code = code
+    this.details = details
+  }
+}
+
 export async function api<T = any>(path: string, options: RequestInit = {}): Promise<T> {
   const token = typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null
   
@@ -76,9 +98,14 @@ export async function api<T = any>(path: string, options: RequestInit = {}): Pro
       }
     }
     
-    const data = await res.json().catch(() => ({}))
+    const data = (await res.json().catch(() => ({}))) as ApiErrorResponse
     console.error(`API error for ${path}:`, data)
-    throw new Error(data?.error?.message || `Request failed: ${res.status}`)
+    throw new ApiError(
+      data?.error?.message || `Request failed: ${res.status}`,
+      res.status,
+      data?.error?.code,
+      data?.error?.details,
+    )
   }
   
   // Handle responses with no content (like 204 DELETE)
