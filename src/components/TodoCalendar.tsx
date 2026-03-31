@@ -14,19 +14,31 @@ export function TodoCalendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [todos, setTodos] = useState<any[]>([])
+  const [googleEvents, setGoogleEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced'>('idle')
   const [addingTodo, setAddingTodo] = useState(false)
   const [newTodoTitle, setNewTodoTitle] = useState('')
 
   const fetchTodos = async () => {
     setLoading(true)
+    setSyncStatus('syncing')
     try {
       const start = startOfMonth(currentMonth)
       const end = endOfMonth(currentMonth)
-      const data = await api(`/todos?start=${start.toISOString()}&end=${end.toISOString()}`)
-      setTodos(data.todos || [])
+      
+      const [todoData, calendarData] = await Promise.all([
+        api(`/todos?start=${start.toISOString()}&end=${end.toISOString()}`),
+        api('/google/calendar/events').catch(() => ({ events: [] }))
+      ])
+      
+      setTodos(todoData.todos || [])
+      setGoogleEvents(calendarData.events || [])
+      setSyncStatus('synced')
+      setTimeout(() => setSyncStatus('idle'), 3000)
     } catch (error) {
-      console.error('Fetch todos error:', error)
+      console.error('Fetch data error:', error)
+      setSyncStatus('idle')
     } finally {
       setLoading(false)
     }
@@ -85,7 +97,11 @@ export function TodoCalendar() {
              <CalendarIcon className="size-6" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">{format(currentMonth, 'MMMM yyyy')}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-bold tracking-tight">{format(currentMonth, 'MMMM yyyy')}</h2>
+              {syncStatus === 'syncing' && <span className="flex items-center gap-1 text-[10px] bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-full font-bold animate-pulse"><Loader2 className="size-2.5 animate-spin" /> Syncing...</span>}
+              {syncStatus === 'synced' && <span className="text-[10px] bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full font-bold animate-in fade-in zoom-in duration-300">✓ Data Synced</span>}
+            </div>
             <p className="text-sm text-muted-foreground font-medium">Your schedule & tasks</p>
           </div>
         </div>
@@ -133,6 +149,10 @@ export function TodoCalendar() {
 
     calendarDays.forEach((day: Date, i: number) => {
       const dayTodos = todos.filter(t => isSameDay(new Date(t.date), day))
+      const dayGoogleEvents = googleEvents.filter(e => {
+        const start = e.start ? new Date(e.start) : null
+        return start && isSameDay(start, day)
+      })
       const isSelected = isSameDay(day, selectedDate)
       const isMonth = isSameMonth(day, monthStart)
       const isToday = isSameDay(day, new Date())
@@ -156,11 +176,18 @@ export function TodoCalendar() {
             )}>
               {format(day, 'd')}
             </span>
-            {dayTodos.length > 0 && (
+            { (dayTodos.length > 0 || dayGoogleEvents.length > 0) && (
               <div className="flex gap-1">
-                <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-md font-bold border border-primary/20">
-                  {dayTodos.length}
-                </span>
+                {dayTodos.length > 0 && (
+                  <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded-md font-bold shadow-sm shadow-orange-500/20">
+                    {dayTodos.length}
+                  </span>
+                )}
+                {dayGoogleEvents.length > 0 && (
+                  <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded-md font-bold shadow-sm shadow-blue-500/20">
+                    {dayGoogleEvents.length} G
+                  </span>
+                )}
               </div>
             )}
           </div>

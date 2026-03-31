@@ -10,15 +10,19 @@ import { CommandPalette } from '@/components/CommandPalette'
 export function InboxRoute() {
   const [messages, setMessages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced'>('idle')
   const [authorized, setAuthorized] = useState(true)
   const [query, setQuery] = useState('')
 
   const fetchInbox = async () => {
     try {
       setLoading(true)
+      setSyncStatus('syncing')
       const data = await api('/google/gmail/messages')
       setMessages(data.messages || [])
       setAuthorized(true)
+      setSyncStatus('synced')
+      setTimeout(() => setSyncStatus('idle'), 3000)
     } catch (err: any) {
       if (err.message?.includes('authenticated')) {
         setAuthorized(false)
@@ -61,9 +65,13 @@ export function InboxRoute() {
              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-orange-600 dark:bg-orange-950/30 dark:text-orange-400 text-xs font-bold uppercase tracking-wider mb-2 border border-orange-200 dark:border-orange-800/40">
                 <Mail size={12} /> Inbox
              </div>
-             <h1 className="text-4xl font-extrabold tracking-tighter sm:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-                Messages
-             </h1>
+             <div className="flex items-center gap-3">
+               <h1 className="text-4xl font-extrabold tracking-tighter sm:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+                  Messages
+               </h1>
+               {syncStatus === 'syncing' && <span className="flex items-center gap-1 text-[10px] bg-blue-500/10 text-blue-500 px-3 py-1 rounded-full font-bold animate-pulse">Syncing...</span>}
+               {syncStatus === 'synced' && <span className="text-[10px] bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full font-bold animate-in fade-in zoom-in duration-300">✓ Synced to DB</span>}
+             </div>
              <p className="text-muted-foreground font-medium max-w-lg">Your synchronized Gmail inbox, powered by AI to help you focus.</p>
           </div>
           
@@ -121,32 +129,27 @@ export function InboxRoute() {
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {filteredMessages.map((msg: any) => {
-              const headers = msg.payload?.headers || []
-              const subject = headers.find((h: any) => h.name === 'Subject')?.value || '(No Subject)'
-              const from = headers.find((h: any) => h.name === 'From')?.value || 'Unknown Sender'
-              const date = headers.find((h: any) => h.name === 'Date')?.value
-              
               return (
-                <div key={msg.id} className="group p-6 rounded-2xl border border-border/40 bg-card hover:bg-accent/40 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 transform-gpu hover:-translate-y-0.5">
+                <div key={msg.id || msg._id} className="group p-6 rounded-2xl border border-border/40 bg-card hover:bg-accent/40 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 transform-gpu hover:-translate-y-0.5">
                   <div className="flex justify-between items-start gap-4">
                     <div className="space-y-2 flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                          <span className="text-[10px] font-black uppercase tracking-widest text-primary opacity-60">
-                           {date ? new Date(date).toLocaleDateString() : 'Recent'}
+                           {msg.date ? new Date(msg.date).toLocaleDateString() : 'Recent'}
                          </span>
                          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="p-1 px-2 rounded-md bg-muted text-[10px] font-bold text-muted-foreground border border-border/50">Gmail</span>
+                            <span className="p-1 px-2 rounded-md bg-muted text-[10px] font-bold text-muted-foreground border border-border/50">Stored in MongoDB</span>
                          </div>
                       </div>
-                      <h3 className="font-bold text-xl leading-tight group-hover:text-primary transition-colors truncate max-w-full">{subject}</h3>
+                      <h3 className="font-bold text-xl leading-tight group-hover:text-primary transition-colors truncate max-w-full">{msg.subject || '(No Subject)'}</h3>
                       <div className="flex items-center gap-2">
-                         <div className="size-5 rounded-full bg-gradient-to-br from-orange-400 to-red-500 shrink-0" />
-                         <p className="text-sm font-semibold text-foreground/80 truncate">{from}</p>
+                         <div className="size-5 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 shrink-0" />
+                         <p className="text-sm font-semibold text-foreground/80 truncate">{msg.from || 'Unknown Sender'}</p>
                       </div>
                       <p className="text-sm text-muted-foreground mt-3 line-clamp-2 leading-relaxed opacity-80">{msg.snippet}</p>
                     </div>
                     <div className="shrink-0 flex flex-col items-center">
-                       <Button variant="ghost" size="icon" className="rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-primary/10 hover:text-primary active:scale-90">
+                       <Button variant="ghost" size="icon" className="rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-primary/10 hover:text-primary active:scale-90" onClick={() => window.open(`https://mail.google.com/mail/u/0/#inbox/${msg.threadId}`, '_blank')}>
                           <ArrowRight size={20} />
                        </Button>
                     </div>

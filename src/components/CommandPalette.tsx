@@ -11,6 +11,7 @@ export function CommandPalette() {
   const [query, setQuery] = React.useState('')
   const [results, setResults] = React.useState<any[]>([])
   const [recent, setRecent] = React.useState<any[]>([])
+  const [allPages, setAllPages] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(false)
   const navigate = useNavigate()
 
@@ -31,6 +32,13 @@ export function CommandPalette() {
       const items = raw ? JSON.parse(raw) : []
       setRecent(items.slice(0, 5))
     } catch {}
+
+    // Fetch all pages when opened to show in search
+    if (open) {
+      api('/pages').then(res => {
+        if (res.pages) setAllPages(res.pages)
+      }).catch(() => {})
+    }
 
     return () => {
       document.removeEventListener('keydown', down)
@@ -72,7 +80,7 @@ export function CommandPalette() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="p-0 overflow-hidden border-none shadow-2xl max-w-2xl bg-transparent top-[20%]" showCloseButton={false}>
+      <DialogContent className="p-0 overflow-hidden border-none shadow-2xl max-w-2xl bg-transparent top-[28%]" showCloseButton={false}>
         <Command className="rounded-2xl border border-border/60 bg-popover/95 backdrop-blur-xl text-popover-foreground shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] transition-all duration-200 ring-1 ring-black/5 dark:ring-white/5">
           <div className="flex items-center border-b border-border/40 px-5 py-4" cmdk-input-wrapper="">
             <Search className="mr-3 h-5 w-5 shrink-0 opacity-50 text-primary" />
@@ -119,6 +127,27 @@ export function CommandPalette() {
               </Command.Group>
             )}
 
+            {/* All Active Pages Section */}
+            {!query && allPages.length > 0 && (
+              <Command.Group heading={<div className="flex items-center gap-2 px-2 py-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60"><FileText className="size-3" /> All Active Pages</div>}>
+                {allPages.map((item: any) => (
+                  <Command.Item
+                    key={`all:${item._id || item.id}`}
+                    onSelect={() => { setOpen(false); navigate(`/${item.slug}`) }}
+                    className="flex cursor-pointer select-none items-center rounded-xl p-3 text-sm outline-none aria-selected:bg-accent/80 aria-selected:text-accent-foreground data-[disabled]:pointer-events-none transition-all duration-200 mb-1"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary mr-4 shadow-sm">
+                      {item.icon || <FileText className="h-5 w-5" />}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="font-bold truncate text-base">{item.title || 'Untitled'}</span>
+                      <span className="text-[10px] uppercase font-black text-muted-foreground/50 tracking-wider">Page</span>
+                    </div>
+                  </Command.Item>
+                ))}
+              </Command.Group>
+            )}
+
             {/* Quick Actions if query is short */}
             {!query && (
                <Command.Group heading={<div className="flex items-center gap-2 px-2 py-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60"><Zap className="size-3" /> Quick Actions</div>}>
@@ -134,7 +163,7 @@ export function CommandPalette() {
             )}
             
             {results.length > 0 && (
-              <Command.Group heading={<div className="flex items-center gap-2 px-2 py-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60"><Zap className="size-3" /> Search Results</div>}>
+              <Command.Group heading={<div className="flex items-center gap-2 px-2 py-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60"><Search className="size-3" /> Search Results</div>}>
                 {results.map((item: any, i: number) => (
                   <Command.Item
                     key={item.id || item._id || i}

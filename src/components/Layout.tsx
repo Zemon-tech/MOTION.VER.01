@@ -24,7 +24,7 @@ export function Layout({ header, sidebar, children, hideSidebar = false, hideHea
               </div>
             </header>
           )}
-          <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
             <main className="w-full h-full px-0">
               {children}
             </main>
@@ -51,7 +51,7 @@ export function Layout({ header, sidebar, children, hideSidebar = false, hideHea
               </div>
             </header>
           )}
-          <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
             <main className="w-full h-full px-0">
               {children}
             </main>
@@ -61,5 +61,3 @@ export function Layout({ header, sidebar, children, hideSidebar = false, hideHea
     </SidebarProvider>
   )
 }
-
-
