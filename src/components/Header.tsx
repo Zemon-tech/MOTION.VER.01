@@ -58,6 +58,16 @@ export function Header({
     try {
       await api(`/pages/${pageId}/star`, { method: next ? "POST" : "DELETE" });
       onStarChanged?.(next);
+      try {
+        window.dispatchEvent(
+          new CustomEvent("page-star-toggled", {
+            detail: { pageId, starred: next },
+          }),
+        );
+      } catch {}
+      try {
+        window.dispatchEvent(new Event("pages-updated"));
+      } catch {}
     } catch (err: unknown) {
       setStarred(!next);
       const message =
@@ -78,6 +88,9 @@ export function Header({
         body: JSON.stringify({ locked: true, password: pwd }),
       });
       onLockChanged?.(true);
+      try {
+        window.dispatchEvent(new Event("pages-updated"));
+      } catch {}
     } catch {}
   }
   async function unlockPage() {
@@ -88,6 +101,9 @@ export function Header({
         body: JSON.stringify({ locked: false }),
       });
       onLockChanged?.(false);
+      try {
+        window.dispatchEvent(new Event("pages-updated"));
+      } catch {}
     } catch {}
   }
   return (

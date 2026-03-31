@@ -216,6 +216,9 @@ export function PageRoute() {
             const filtered = arr.filter((e) => e && e.slug !== slug);
             const next = [{ slug, ts: now }, ...filtered].slice(0, 30);
             localStorage.setItem("recentVisited", JSON.stringify(next));
+            try {
+              window.dispatchEvent(new Event("recent-updated"));
+            } catch {}
           } catch {}
           // Persist to server
           try {
