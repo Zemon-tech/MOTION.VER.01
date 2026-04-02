@@ -193,6 +193,7 @@ export function Editor({ title, onTitleChange, initialContentJSON, onContentChan
       StarterKit.configure({
         hardBreak: false,
         horizontalRule: false,
+        link: false, // disabled — Link is configured separately below
       }),
       Link.configure({
         openOnClick: false,
@@ -228,8 +229,7 @@ export function Editor({ title, onTitleChange, initialContentJSON, onContentChan
         maxSize: MAX_FILE_SIZE,
         limit: 3,
         upload: handleImageUpload,
-        onError: (error) => console.error('Upload failed:', error),
-        onSuccess: (url) => console.log('Uploaded:', url),
+        onError: (error) => { if ((import.meta as any).env?.DEV) console.debug('[Editor] Upload failed:', error) },
       }),
       Placeholder.configure({ placeholder: 'Type "/" for commands…' }),
       HardBreak.configure({ keepMarks: true }),
@@ -479,9 +479,8 @@ export function Editor({ title, onTitleChange, initialContentJSON, onContentChan
     return Array.from({ length: count }, (_, idx) => `block-${idx}`)
   }, [editor, docVersion])
 
-  function handleDragStart(event: any) {
-    // Optional: Add any drag start logic here
-    console.log('Drag started:', event.active.id)
+  function handleDragStart(_event: any) {
+    // Drag start — no logging needed
   }
 
   function handleDragOver() {

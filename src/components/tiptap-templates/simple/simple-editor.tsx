@@ -226,7 +226,7 @@ export function SimpleEditor() {
         maxSize: MAX_FILE_SIZE,
         limit: 3,
         upload: handleImageUpload,
-        onError: (error) => console.error("Upload failed:", error),
+        onError: (error) => { if ((import.meta as any).env?.DEV) console.debug('[SimpleEditor] Upload failed:', error) },
       }),
     ],
     content,

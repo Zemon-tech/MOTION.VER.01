@@ -27,8 +27,6 @@
     "@tiptap/extension-code-block-lowlight": "^3.7.2",
     "@tiptap/extension-color": "^3.7.2",
     "@tiptap/extension-details": "^3.7.2",
-    "@tiptap/extension-details-content": "^2.26.2",
-    "@tiptap/extension-details-summary": "^2.26.2",
     "@tiptap/extension-hard-break": "^3.7.2",
     "@tiptap/extension-highlight": "^3.7.2",
     "@tiptap/extension-horizontal-rule": "^3.7.2",

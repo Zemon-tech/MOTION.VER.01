@@ -22,6 +22,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { SettingsDialog } from '@/components/SettingsDialog'
 import { Skeleton } from '@/components/ui/skeleton'
 
+const IS_DEV = (import.meta as any).env?.DEV === true
+
 const items = [
   { title: 'Home', icon: Home },
   { title: 'Inbox', icon: Inbox },
@@ -133,17 +135,11 @@ export function AppSidebar() {
   async function refreshPages() {
     try {
       setLoadingPages(true)
-      console.log('Refreshing pages...')
-      const token = localStorage.getItem('accessToken')
-      console.log('Token present:', !!token)
-      
       const data = await api('/pages')
-      console.log('Pages data:', data)
       // Expect backend to include parentId for hierarchy
       setPages((data.pages || []).map((p: any) => ({ _id: p._id, title: p.title, slug: p.slug, icon: p.icon || null, parentId: p.parentId || null, locked: !!p.locked })))
-      console.log('Pages set:', data.pages?.length || 0)
     } catch (error) {
-      console.error('Error fetching pages:', error)
+      if (IS_DEV) console.debug('[Sidebar] Error fetching pages:', error)
     }
     setLoadingPages(false)
   }
@@ -184,8 +180,7 @@ export function AppSidebar() {
         try {
           const user = JSON.parse(cachedUser)
           setUsername(user?.name || user?.email || 'User')
-        } catch (e) {
-          console.error('Error parsing cached user in sidebar:', e)
+        } catch {
           // Clear invalid data
           localStorage.removeItem('user')
         }
@@ -198,7 +193,7 @@ export function AppSidebar() {
       // Update localStorage with fresh data
       localStorage.setItem('user', JSON.stringify(user))
     } catch (error) {
-      console.error('Error fetching user:', error)
+      if (IS_DEV) console.debug('[Sidebar] Error fetching user:', error)
     }
   }
 
@@ -214,23 +209,17 @@ export function AppSidebar() {
 
   async function createPage() {
     try {
-      console.log('Creating new page from sidebar...')
-      const token = localStorage.getItem('accessToken')
-      console.log('Token present for create:', !!token)
-      
       const data = await api('/pages', {
         method: 'POST',
         body: JSON.stringify({ title: 'New Page' }),
       })
       
-      console.log('New page created:', data)
       await refreshPages()
       if (data.slug) {
-        console.log('Navigating to new page:', data.slug)
         navigate(`/${data.slug}`)
       }
     } catch (error) {
-      console.error('Error creating page:', error)
+      if (IS_DEV) console.debug('[Sidebar] Error creating page:', error)
     }
   }
 
@@ -257,7 +246,7 @@ export function AppSidebar() {
         navigate('/home')
       }
     } catch (error) {
-      console.error('Error deleting page:', error)
+      if (IS_DEV) console.debug('[Sidebar] Error deleting page:', error)
     }
   }
 

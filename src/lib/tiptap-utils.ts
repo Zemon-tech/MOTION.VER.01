@@ -192,7 +192,7 @@ export function findNodeAtPosition(editor: Editor, position: number) {
     }
     return node
   } catch (error) {
-    console.error(`Error getting node at position ${position}:`, error)
+    if ((import.meta as any).env?.DEV) console.debug(`[tiptap] Error getting node at position ${position}:`, error)
     return null
   }
 }

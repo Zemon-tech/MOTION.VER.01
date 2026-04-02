@@ -213,7 +213,7 @@ export function PageRoute() {
       if (id) socket.emit('page.join', { pageId: id, token: shareToken })
     })
     socket.on('connect_error', (err) => {
-      console.error('socket connect_error', err.message)
+      if ((import.meta as any).env?.DEV) console.debug('[PageRoute] socket connect_error', err.message)
       // If unauthorized, try refresh and reconnect with new token
       if (err.message?.toLowerCase().includes('unauthorized')) {
         fetch(`${(import.meta as any).env?.VITE_API_BASE || 'http://localhost:4000/api'}/auth/refresh`, {
