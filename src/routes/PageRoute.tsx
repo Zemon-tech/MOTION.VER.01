@@ -10,6 +10,9 @@ import type { Socket } from 'socket.io-client'
 import { getSocket, updateSocketAuthToken } from '@/lib/socket'
 import { setDocumentTitle, setFaviconFromIcon, setSocialMeta } from '@/lib/meta'
 import { PasswordGate } from '@/components/PasswordGate'
+import { RateLimitBanner } from '@/components/RateLimitBanner'
+import { usePageCreationLimit } from '@/hooks/use-page-creation-limit'
+import { ApiError } from '@/lib/utils'
 
 export function PageRoute() {
   const { slug } = useParams()
@@ -40,6 +43,8 @@ export function PageRoute() {
   const [reloadNonce, setReloadNonce] = useState(0)
   const slugNavTimer = useRef<number | null>(null)
   const latestServerSlugRef = useRef<string | null>(null)
+  const blocked = usePageCreationLimit((s) => s.blocked)
+  const setBlocked = usePageCreationLimit((s) => s.setBlocked)
 
   // Debounced saving indicator: keep 'saving' during rapid edits, then show 'saved' and return to 'idle'
   function bumpSavingIndicator() {
@@ -331,6 +336,7 @@ export function PageRoute() {
             You are editing via a share link. Your changes will be saved to this page.
           </div>
         ) : null}
+        <RateLimitBanner />
         <Editor key={pageId}
           title={title}
           initialContentJSON={initialContent}
@@ -341,11 +347,20 @@ export function PageRoute() {
           persistKey={pageId || slug || 'page'}
           onCreateSubpage={async (t: string) => {
             if (!pageId) throw new Error('No pageId')
-            const res = await api<{ page: any; slug: string }>(`/pages/${pageId}/subpages`, {
-              method: 'POST',
-              body: JSON.stringify({ title: t }),
-            })
-            return { id: res.page?._id, slug: res.slug || '', title: res.page?.title || 'Untitled', icon: res.page?.icon || null }
+            if (blocked) throw new Error('Action blocked by rate limit')
+            try {
+              const res = await api<{ page: any; slug: string }>(`/pages/${pageId}/subpages`, {
+                method: 'POST',
+                body: JSON.stringify({ title: t }),
+              })
+              return { id: res.page?._id, slug: res.slug || '', title: res.page?.title || 'Untitled', icon: res.page?.icon || null }
+            } catch (error) {
+              if (error instanceof ApiError && error.status === 429) {
+                const retryAfterMs = error.data?.error?.retryAfterMs ?? 60000
+                setBlocked(retryAfterMs)
+              }
+              throw error
+            }
           }}
           onIconChange={(v: string | null) => {
             setIcon(v)

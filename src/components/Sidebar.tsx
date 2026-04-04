@@ -1,26 +1,15 @@
 import { Calendar, Home, Inbox, Search, Settings, User2, MoreHorizontal, SquarePen, FileText, ChevronRight, ChevronDown } from 'lucide-react'
 import { Lock } from 'lucide-react'
-import {
-  Sidebar as ShadSidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from '@/components/ui/sidebar'
+import { Sidebar as ShadSidebar, SidebarContent, SidebarHeader, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, useSidebar, SidebarFooter } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
-import { api } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
+import { api, ApiError } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
-import { SidebarFooter } from '@/components/ui/sidebar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { SettingsDialog } from '@/components/SettingsDialog'
-import { Skeleton } from '@/components/ui/skeleton'
+import { usePageCreationLimit, usePageCreationCountdown } from '@/hooks/use-page-creation-limit'
 
 const items = [
   { title: 'Home', icon: Home },
@@ -124,11 +113,19 @@ export function AppSidebar() {
   const [hideLocked, setHideLocked] = useState<boolean>(() => {
     try {
       const v = localStorage.getItem('hideLocked')
-      // Default to hiding locked pages when not previously set
       return v == null ? true : v === '1'
     } catch { return true }
   })
   const navigate = useNavigate()
+
+  // Rate limit state
+  const blocked = usePageCreationLimit((s) => s.blocked)
+  const remainingTime = usePageCreationLimit((s) => s.remainingTime)
+  const setBlocked = usePageCreationLimit((s) => s.setBlocked)
+  const [creating, setCreating] = useState(false)
+
+  // Initialize countdown timer
+  usePageCreationCountdown()
 
   async function refreshPages() {
     try {
@@ -213,7 +210,9 @@ export function AppSidebar() {
   }, [])
 
   async function createPage() {
+    if (creating || blocked) return
     try {
+      setCreating(true)
       console.log('Creating new page from sidebar...')
       const token = localStorage.getItem('accessToken')
       console.log('Token present for create:', !!token)
@@ -231,6 +230,12 @@ export function AppSidebar() {
       }
     } catch (error) {
       console.error('Error creating page:', error)
+      if (error instanceof ApiError && error.status === 429) {
+        const retryAfterMs = error.data?.error?.retryAfterMs ?? 60000
+        setBlocked(retryAfterMs)
+      }
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -285,8 +290,20 @@ export function AppSidebar() {
             >
               <Lock className="size-3" />
             </button>
-            <Button variant="outline" size="icon" className="h-6 w-6" onClick={createPage} title="Create page">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className={`h-6 w-6 relative ${blocked ? 'opacity-50 cursor-not-allowed' : ''}`} 
+              onClick={createPage} 
+              disabled={creating || blocked}
+              title={blocked ? `Wait ${remainingTime}s` : "Create page"}
+            >
               <SquarePen className="size-3" />
+              {blocked && (
+                <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-destructive text-[8px] text-destructive-foreground">
+                  {remainingTime}
+                </span>
+              )}
             </Button>
             {state === 'expanded' ? <SidebarTrigger /> : null}
           </div>

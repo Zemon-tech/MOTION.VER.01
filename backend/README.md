@@ -6,6 +6,7 @@
 
 ```
 MONGO_URI=mongodb://localhost:27017/pages
+UPSTASH_REDIS_URL=rediss://default:<password>@<region>.upstash.io:6379
 JWT_ACCESS_SECRET=change_me_dev_access
 JWT_REFRESH_SECRET=change_me_dev_refresh
 CORS_ORIGIN=http://localhost:5173
@@ -32,4 +33,3 @@ API runs on http://localhost:4000
 - JWT access (Authorization: Bearer) + refresh (httpOnly cookie)
 - Upload image: POST /api/uploads/images (multipart field name: file)
 - Static uploads served at /uploads
-

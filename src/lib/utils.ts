@@ -14,6 +14,17 @@ export const apiBase =
     ? `${window.location.protocol}//${window.location.hostname}:4000/api` 
     : 'http://localhost:4000/api')
 
+export class ApiError extends Error {
+  status: number
+  data: any
+  constructor(message: string, status: number, data: any) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+    this.data = data
+  }
+}
+
 export async function api<T = any>(path: string, options: RequestInit = {}): Promise<T> {
   const token = typeof localStorage !== 'undefined' ? localStorage.getItem('accessToken') : null
   
@@ -71,16 +82,25 @@ export async function api<T = any>(path: string, options: RequestInit = {}): Pro
             if (retryRes.ok) {
               return retryRes.json()
             }
+            // If retry fails, throw with retry data
+            const retryData = await retryRes.json().catch(() => ({}))
+            throw new ApiError(retryData?.error?.message || `Request failed: ${retryRes.status}`, retryRes.status, retryData)
           }
         }
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError)
+        if (refreshError instanceof ApiError) throw refreshError
       }
     }
     
-    const data = await res.json().catch(() => ({}))
+    let data: any = {}
+    try {
+      data = await res.json()
+    } catch {
+      // Use fallback if json parsing fails
+    }
     console.error(`API error for ${path}:`, data)
-    throw new Error(data?.error?.message || `Request failed: ${res.status}`)
+    throw new ApiError(data?.error?.message || `Request failed: ${res.status}`, res.status, data)
   }
   
   // Handle responses with no content (like 204 DELETE)

@@ -5,13 +5,17 @@ import { AppSidebar } from './components/Sidebar'
 import { Editor } from './components/Editor'
 import { AuthPage } from './components/Auth'
 import { useNavigate } from 'react-router-dom'
-import { api } from './lib/utils'
+import { api, ApiError } from './lib/utils'
+import { usePageCreationLimit, usePageCreationCountdown } from './hooks/use-page-creation-limit'
+import { RateLimitBanner } from './components/RateLimitBanner'
 
 function App() {
   const [title, setTitle] = useState('Untitled')
   const [accessToken, setAccessToken] = useState<string | null>(null)
   const [, setUser] = useState<any>(null)
   const navigate = useNavigate()
+  const setBlocked = usePageCreationLimit((s) => s.setBlocked)
+  usePageCreationCountdown()
   
   useEffect(() => {
     // Check localStorage first for instant login
@@ -93,8 +97,12 @@ function App() {
                         console.log('No slug in new page data, staying on home')
                       }
                     })
-                    .catch((error) => {
+                     .catch((error) => {
                       console.error('Error creating new page:', error)
+                      if (error instanceof ApiError && error.status === 429) {
+                        const retryAfterMs = error.data?.error?.retryAfterMs ?? 60000
+                        setBlocked(retryAfterMs)
+                      }
                     })
                 }
               })
@@ -163,6 +171,10 @@ function App() {
                                 })
                                 .catch((error) => {
                                   console.error('Error creating new page:', error)
+                                  if (error instanceof ApiError && error.status === 429) {
+                                    const retryAfterMs = error.data?.error?.retryAfterMs ?? 60000
+                                    setBlocked(retryAfterMs)
+                                  }
                                 })
                             }
                           })
@@ -204,6 +216,7 @@ function App() {
     accessToken ? (
       <Layout header={<Header title={title} />} sidebar={<AppSidebar />}>
         <div className="h-full">
+          <RateLimitBanner />
           <Editor title={title} onTitleChange={setTitle} />
         </div>
       </Layout>
