@@ -1,11 +1,14 @@
 import type { CorsOptions } from 'cors'
 
-const origin = process.env.CORS_ORIGIN || 'http://localhost:5173'
+const allowedOrigins = [
+  'https://motion-gamma-one.vercel.app',
+  'http://localhost:5173',
+  ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()) : [])
+]
 
 export const corsConfig: CorsOptions = {
   origin: (originProp: string | undefined, callback: (err: Error | null, allow?: boolean | string | string[]) => void) => {
-    const allowed = process.env.CORS_ORIGIN || 'http://localhost:5173'
-    if (!originProp || process.env.NODE_ENV === 'development' || originProp === allowed) {
+    if (!originProp || process.env.NODE_ENV === 'development' || allowedOrigins.includes(originProp)) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
