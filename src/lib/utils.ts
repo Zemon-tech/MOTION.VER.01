@@ -7,12 +7,15 @@ export function cn(...inputs: ClassValue[]) {
 
 // Simple API client
 // Prefer VITE_API_BASE_URL, fallback to legacy VITE_API_BASE, then localhost
-export const apiBase =
+const rawBase =
   (import.meta as any).env?.VITE_API_BASE_URL ||
   (import.meta as any).env?.VITE_API_BASE ||
   (typeof window !== 'undefined' 
     ? `${window.location.protocol}//${window.location.hostname}:4000/api` 
     : 'http://localhost:4000/api')
+
+// Ensure apiBase ends with /api but without double slashes if the path starts with /
+export const apiBase = rawBase.replace(/\/$/, '') + (rawBase.endsWith('/api') || rawBase.endsWith('/api/') ? '' : '/api')
 
 export class ApiError extends Error {
   status: number
