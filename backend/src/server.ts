@@ -21,7 +21,7 @@ async function main() {
   await connectMongo();
   const io = new SocketIOServer(server, {
     cors: {
-      origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+      origin: ["https://motion-gamma-one.vercel.app", "http://localhost:5173"],
       credentials: true,
       methods: ["GET", "POST"],
       allowedHeaders: ["Authorization", "Content-Type"],
