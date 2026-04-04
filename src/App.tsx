@@ -5,7 +5,7 @@ import { AppSidebar } from './components/Sidebar'
 import { Editor } from './components/Editor'
 import { AuthPage } from './components/Auth'
 import { useNavigate } from 'react-router-dom'
-import { api, ApiError } from './lib/utils'
+import { api, ApiError, apiBase } from './lib/utils'
 import { usePageCreationLimit, usePageCreationCountdown } from './hooks/use-page-creation-limit'
 import { RateLimitBanner } from './components/RateLimitBanner'
 
@@ -112,19 +112,20 @@ function App() {
         .catch(() => {})
     }
     
-    // Attempt silent refresh if no token
     if (!token) {
-      fetch(`${(import.meta as any).env?.VITE_API_BASE || 'http://localhost:4000/api'}/auth/refresh`, {
+      console.log('No token found in App startup, attempting refresh...')
+      fetch(`${apiBase}/auth/refresh`, {
         method: 'POST',
         credentials: 'include',
       })
         .then(async (r) => (r.ok ? r.json() : null))
         .then((data) => {
           if (data?.accessToken) {
+            console.log('Refresh successful on startup, setting token.')
             localStorage.setItem('accessToken', data.accessToken)
             setAccessToken(data.accessToken)
             // Fetch user data after successful refresh
-            fetch(`${(import.meta as any).env?.VITE_API_BASE || 'http://localhost:4000/api'}/users/me`, {
+            fetch(`${apiBase}/users/me`, {
               headers: { Authorization: `Bearer ${data.accessToken}` },
               credentials: 'include',
             })
